@@ -1,0 +1,130 @@
+package frontend
+
+// import "github.com/unnxt30/zippy/frontend/components"
+
+
+templ Index() {
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Zippy - URL Shortener</title>
+        <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #1a1a1a;
+            --container-bg: #2a2a2a;
+            --input-bg: #3a3a3a;
+            --text-color: #e0e0e0;
+            --button-bg: #4a4a4a;
+            --button-hover: #5a5a5a;
+            --accent-color: #6a6a6a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-container, .copy-field-container {
+            background-color: var(--container-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-input, .copy-field-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .form-input::placeholder {
+            color: var(--accent-color);
+        }
+
+        .form-button, .copy-field-button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+            background-color: var(--button-bg);
+            color: var(--text-color);
+        }
+
+        .form-button:hover, .copy-field-button:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+        }
+
+        .copy-field-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .copy-field {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border-radius: 6px;
+            font-size: 16px;
+            text-align: center;
+            word-break: break-all;
+        }
+
+        .copy-field-button {
+            max-width: 200px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 10px;
+            }
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="form-container">
+                <form hx-post="/" hx-target="#short-url-box" hx-swap-oob="#short-url-box">
+                    <input type="url" name="long_url" placeholder="Enter URL" class="form-input" required>
+                    <button type="submit" class="form-button">Zip It!</button>
+                </form>
+            </div>
+            <div id="short-URL-container" class="copy-field-container">
+                <div id="short-url-box" class="copy-field"></div>
+                <button class="copy-field-button">Copy Me!</button>
+            </div>
+        </div>
+    </body>
+</html>
+}

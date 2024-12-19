@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -14,6 +15,8 @@ type RedisClient struct {
 	ctx context.Context
 	rdb *redis.Client
 }
+
+
 
 func (rc *RedisClient) Init() RedisClient{
 	err := godotenv.Load("./.env")
@@ -33,13 +36,37 @@ func (rc *RedisClient) Init() RedisClient{
 
 }
 
-func (rc *RedisClient) RedisGet(longURL string)(string,error) {
-	val, err := rc.rdb.Get(rc.ctx, longURL).Result()
-	if err != nil {
-		return "", err
+func (rc *RedisClient) RedisGet(shortURL string)(string,error) {
+	var cursor uint64
+	var found string
+	
+	for{
+		keys, cursor, err := rc.rdb.Scan(rc.ctx, cursor, "*", 10).Result()
+		if err != nil {
+			return "", err
+		}
+
+		for _, key := range keys {
+			val, err := rc.rdb.Get(rc.ctx, key).Result()
+			if err == redis.Nil   {
+				return "", fmt.Errorf("key does not exist")
+			}else if err != nil {
+				return "", err
+			}
+
+			if val == shortURL {
+				found = key
+				return found, nil 
+			}
+
+		}
+
+		if cursor == 0 {
+			break
+		}
 	}
 
-	return val, nil
+	return "", fmt.Errorf("key does not exist")
 }
 
 func (rc *RedisClient) RedisSet(longURL string) (string,error){
