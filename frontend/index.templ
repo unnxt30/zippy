@@ -124,6 +124,29 @@ templ Index() {
                 <div id="short-url-box" class="copy-field"></div>
                 <button class="copy-field-button">Copy Me!</button>
             </div>
+            <script>
+                document.body.addEventListener('click', function(e) {
+                    if (e.target.matches('.copy-field-button')) {
+                        const shortUrlBox = document.querySelector('#short-url-box');
+                        const text = shortUrlBox.textContent;
+                        
+                        if (text) {
+                            navigator.clipboard.writeText(text)
+                                .then(() => {
+                                    const button = e.target;
+                                    const originalText = button.textContent;
+                                    button.textContent = 'Copied!';
+                                    setTimeout(() => {
+                                        button.textContent = originalText;
+                                    }, 2000);
+                                })
+                                .catch(err => {
+                                    console.error('Failed to copy:', err);
+                                });
+                        }
+                    }
+                });
+            </script>
         </div>
     </body>
 </html>
