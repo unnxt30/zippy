@@ -16,9 +16,7 @@ type RedisClient struct {
 	rdb *redis.Client
 }
 
-
-
-func (rc *RedisClient) Init() RedisClient{
+func (rc *RedisClient) Init() RedisClient {
 	err := godotenv.Load("./.env")
 	if err != nil {
 		log.Fatal("error loading .env file: %w", err)
@@ -36,11 +34,11 @@ func (rc *RedisClient) Init() RedisClient{
 
 }
 
-func (rc *RedisClient) RedisGet(shortURL string)(string,error) {
+func (rc *RedisClient) RedisGet(shortURL string) (string, error) {
 	var cursor uint64
 	var found string
-	
-	for{
+
+	for {
 		keys, cursor, err := rc.rdb.Scan(rc.ctx, cursor, "*", 10).Result()
 		if err != nil {
 			return "", err
@@ -48,15 +46,15 @@ func (rc *RedisClient) RedisGet(shortURL string)(string,error) {
 
 		for _, key := range keys {
 			val, err := rc.rdb.Get(rc.ctx, key).Result()
-			if err == redis.Nil   {
+			if err == redis.Nil {
 				return "", fmt.Errorf("key does not exist")
-			}else if err != nil {
+			} else if err != nil {
 				return "", err
 			}
 
 			if val == shortURL {
 				found = key
-				return found, nil 
+				return found, nil
 			}
 
 		}
@@ -69,7 +67,7 @@ func (rc *RedisClient) RedisGet(shortURL string)(string,error) {
 	return "", fmt.Errorf("key does not exist")
 }
 
-func (rc *RedisClient) RedisSet(longURL string) (string,error){
+func (rc *RedisClient) RedisSet(longURL string) (string, error) {
 	shortenedURL := hash.GetShortURL(5)
 
 	if _, err := rc.rdb.Get(rc.ctx, longURL).Result(); err == redis.Nil {
@@ -81,6 +79,3 @@ func (rc *RedisClient) RedisSet(longURL string) (string,error){
 
 	return val, nil
 }
-
-
-

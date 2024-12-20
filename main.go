@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,14 +16,19 @@ type URLRequest struct {
 	LongURL string `json:"long_url"` // Use binding to validate
 }
 
-func main(){
+func main() {
 	rc := db.RedisClient{}
 	rc.Init()
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
 		component := frontend.Index()
-		component.Render(context.Background(), c.Writer)
+		err := component.Render(context.Background(), c.Writer)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Could not render component"})
+			return
+		}
 	})
 
 	r.POST("/", func(c *gin.Context) {
@@ -37,11 +43,11 @@ func main(){
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "Could not set value in redis"})
-				return 
-			}
+			return
+		}
 
 		hostName := c.Request.Host
-		responseURL := fmt.Sprintf("http://%s/%s",hostName, shortURL)
+		responseURL := fmt.Sprintf("http://%s/%s", hostName, shortURL)
 
 		c.String(http.StatusOK, responseURL)
 		// c.JSON(http.StatusOK, gin.H{
@@ -51,7 +57,7 @@ func main(){
 	})
 
 	r.GET("/:shortURL", func(c *gin.Context) {
-		shawty := c.Param("shortURL")	
+		shawty := c.Param("shortURL")
 		longURL, err := rc.RedisGet(shawty)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -59,14 +65,13 @@ func main(){
 			return
 		}
 
-		c.Header("Location", longURL)	
+		c.Header("Location", longURL)
 		c.JSON(http.StatusFound, gin.H{
-			"long_url": longURL,})
+			"long_url": longURL})
 	})
 
-	r.POST("/shorten", func(c *gin.Context) {
-		gotVal := c.Request.FormValue("long_url")
-		fmt.Println(gotVal)
-	})
-	r.Run()
+	err := r.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
